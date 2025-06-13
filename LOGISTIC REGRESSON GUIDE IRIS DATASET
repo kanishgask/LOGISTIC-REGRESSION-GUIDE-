@@ -1,0 +1,88 @@
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+# Load dataset (Iris - Binary classification: Setosa vs not Setosa)
+iris = load_iris()
+X = iris.data
+y = (iris.target == 0).astype(int).reshape(-1, 1)  # Setosa = 1, others = 0
+
+# Normalize the dataset
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize parameters
+def initialize_params(n_features):
+    W = np.zeros((n_features, 1))
+    b = 0
+    return W, b
+
+# Sigmoid function
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+# Forward propagation
+def forward_propagation(X, W, b):
+    Z = np.dot(X, W) + b
+    A = sigmoid(Z)
+    return A
+
+# Compute cost
+def compute_cost(A, Y):
+    m = Y.shape[0]
+    cost = - (1/m) * np.sum(Y * np.log(A + 1e-8) + (1 - Y) * np.log(1 - A + 1e-8))
+    return cost
+
+# Backward propagation
+def backward_propagation(X, A, Y):
+    m = X.shape[0]
+    dW = (1/m) * np.dot(X.T, (A - Y))
+    db = (1/m) * np.sum(A - Y)
+    return dW, db
+
+# Gradient Descent
+def gradient_descent(X, Y, W, b, learning_rate, epochs):
+    costs = []
+    for i in range(1, epochs + 1):
+        A = forward_propagation(X, W, b)
+        cost = compute_cost(A, Y)
+        dW, db = backward_propagation(X, A, Y)
+        W -= learning_rate * dW
+        b -= learning_rate * db
+        costs.append(cost)
+        if i % 100 == 0 or i == 1:
+            print(f"Iteration {i}/{epochs}  Cost = {cost:.4f}")
+    return W, b, costs
+
+# Prediction
+def predict(X, W, b):
+    A = forward_propagation(X, W, b)
+    return (A >= 0.5).astype(int)
+
+# Run the model
+n_features = X_train.shape[1]
+W, b = initialize_params(n_features)
+learning_rate = 0.1
+epochs = 5000
+
+W, b, costs = gradient_descent(X_train, y_train, W, b, learning_rate, epochs)
+
+# Evaluate
+y_pred = predict(X_test, W, b)
+accuracy = accuracy_score(y_test, y_pred)
+print(f"\nTest Accuracy: {accuracy:.4f}")
+
+# Plot cost curve
+plt.plot(costs)
+plt.title("Training Cost over Epochs")
+plt.xlabel("Epochs")
+plt.ylabel("Cost")
+plt.grid(True)
+plt.show()
