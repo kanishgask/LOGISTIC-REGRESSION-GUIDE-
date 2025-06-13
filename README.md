@@ -45,10 +45,13 @@ bash
 Copy
 Edit
 python logistic_regression_from_scratch.py
+
 **🖥️  Output**
+
 ![image](https://github.com/user-attachments/assets/20d8a6c6-1781-477e-998b-0880ceb6f396)
 
 ![image](https://github.com/user-attachments/assets/dd1dae0e-66de-4134-b676-a858657643ba)
+
 
 
 
